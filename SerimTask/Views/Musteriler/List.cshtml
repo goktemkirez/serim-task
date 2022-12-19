@@ -1,0 +1,151 @@
+﻿@model IEnumerable<Musteri>
+
+<style>
+    .switch {
+        position: relative;
+        display: inline-block;
+        width: 60px;
+        height: 34px;
+    }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+    .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        -webkit-transition: .4s;
+        transition: .4s;
+    }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            -webkit-transition: .4s;
+            transition: .4s;
+        }
+
+    input:checked + .slider {
+        background-color: #2196F3;
+    }
+
+    input:focus + .slider {
+        box-shadow: 0 0 1px #2196F3;
+    }
+
+    input:checked + .slider:before {
+        -webkit-transform: translateX(26px);
+        -ms-transform: translateX(26px);
+        transform: translateX(26px);
+    }
+
+    /* Rounded sliders */
+    .slider.round {
+        border-radius: 34px;
+    }
+
+        .slider.round:before {
+            border-radius: 50%;
+        }
+</style>
+
+
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function() {
+        $("#filterInput").on("keyup", function() {
+            var value = $(this).val().toLowerCase();
+            $("#musterilerTable tr").filter(function() {
+                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+    function deleteConfirm(id, chckd) {
+        $.ajax({
+            url: '/Musteriler/Delete/',
+            data: { id: id, aktif: chckd }
+        }).done(function() {
+            window.location = "/Musteriler/Index";
+        });
+
+    }
+
+    function aktifFilter(chckd) {
+        //
+
+    }
+</script>
+
+<div class="container">
+    <div style="display: flex; justify-content: space-between; align-items: center">
+        <h2>Müşteriler</h2>
+        <div style="height:initial">
+            <a class="btn btn-info" href="/Musteriler/Create/">
+                <span class="menu-title">Müşteri Ekle</span>
+            </a>
+        </div>
+    </div>
+    @*<label class="switch">
+    <input id="durumSwitch" type="checkbox" checked="checked" onchange="aktifFilter(this.checked)">
+    <span class="slider round"></span>
+    </label>*@
+    <p>Mütşeri aramak için:</p>
+    <input class="form-control" id="filterInput" type="text" placeholder="Ara..">
+    <br>
+    <table class="table table-dark">
+        <thead>
+            <tr>
+                <th>#</th>
+                <th>Ad</th>
+                <th>Soyad</th>
+                <th>Doğum Tarihi</th>
+                <th>Telefon</th>
+                <th>Mail</th>
+                <th>Kayıt Tarihi</th>
+                <th>Cinsiyet</th>
+                <th>Aktif</th>
+                <th>-</th>
+            </tr>
+        </thead>
+        <tbody id="musterilerTable">
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@item.Id</td>
+                    <td>@item.Ad</td>
+                    <td>@item.Soyad</td>
+                    <td>@item.DogumTarihi</td>
+                    <td>@item.TelNo</td>
+                    <td>@item.Email</td>
+                    <td>@item.KayitTarihi</td>
+                    <td>@item.Cinsiyet</td>
+                    <td>
+                        <label class="switch">
+                            <input id="durumSwitch" type="checkbox" data-checked=@item.Durum checked=@item.Durum onchange="deleteConfirm(@item.Id, this.checked)">
+                            <span class="slider round"></span>
+                        </label>
+                    </td>
+                    <td>
+                        <a class="btn btn-warning" href="/Musteriler/Edit?id=@item.Id">
+                            <span class="menu-title">Düzenle</span>
+                        </a>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

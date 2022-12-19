@@ -1,0 +1,129 @@
+﻿@model Musteri
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+</head>
+<body>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript">
+        ;
+        $(window).on("load", function() {
+            let params = new URLSearchParams(window.location.search)
+            $.ajax({
+                type: "GET",
+                url: "/Musteriler/GetById/" + params.get('id'),
+                success: function(response) {
+                    console.log(response)
+                    ad.value = response.ad
+                    soyad.value = response.soyad
+                    let dgDate = new Date(response.dogumTarihi)
+                    dgDate.setDate(dgDate.getDate() + 1)
+                    dogumTarihi.value = dgDate.toISOString().slice(0, 10)
+                    telNo.value = response.telNo
+                    email.value = response.email
+                    cinsiyet.value = response.cinsiyet
+                    kayitTarihi.value = response.kayitTarihi
+                    durum.value = response.durum
+                },
+                error: function(error) {
+                    console.log("hata", error)
+                }
+            });
+        });
+
+        $(document).ready(function() {
+            $("#btnSend").on("click", function() {
+
+                let validationText = "";
+                if (ad.value == "")
+                    validationText += "Ad alanını doldurunuz ! \n"
+                if (soyad.value == "")
+                    validationText += "Soyad alanını doldurunuz ! \n"
+                if (dogumTarihi.value == "")
+                    validationText += "Doğum Tarihi alanını doldurunuz ! \n"
+                var telformat = /[0-9]{10}/;
+                if (!telNo.value.match(telformat))
+                    validationText += "Tel No 10 haneli olmalıdır ! \n"
+                var mailformat = /^\w+([\.-]?\w+)*@@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+                if (!email.value.match(mailformat))
+                    validationText += "Mail formatı asd@asd.com şeklinde olmalı. \n"
+
+
+                if (validationText != "") {
+                    document.getElementById("validationMessage").innerText = validationText;
+                    return;
+                }
+
+
+                $("#btnSend").attr("disabled", "true");
+
+                let params = new URLSearchParams(window.location.search)
+
+                var dataObj = {
+                    Id: params.get('id'),
+                    Ad: ad.value,
+                    Soyad: soyad.value,
+                    DogumTarihi: dogumTarihi.value,
+                    TelNo: telNo.value,
+                    Email: email.value,
+                    Cinsiyet: cinsiyet.value,
+                    KayitTarihi: kayitTarihi.value,
+                    Durum: durum.value
+                };
+
+                $.ajax({
+                    type: "POST",
+                    url: "/Musteriler/Edit",
+                    data: dataObj,
+                    success: function(data) {
+                        $("#btnSend").removeAttr("disabled");
+                        alert("İşlem tamamlanmıştır")
+                        window.location = "/Musteriler/Index";
+                    },
+                    error: function(error) {
+                        $("#btnSend").removeAttr("disabled");
+                        alert("hata")
+                        console.log("hata", error)
+                    }
+                });
+            });
+        });
+
+    </script>
+    <div>
+        <label for="ad">Ad:</label>
+        <input type="text" id="ad" class="form-control" placeholder="Ad" />
+        <br />
+        <label for="soyad">Soyad:</label>
+        <input type="text" id="soyad" class="form-control" placeholder="Soyad" />
+        <br />
+        <label for="dogumTarihi">Doğum Tarihi:</label>
+        <input type="date" id="dogumTarihi" class="form-control" placeholder="Doğum Tarihi" />
+        <br />
+        <label for="telNo">Telefon:</label>
+        <input type="tel" id="telNo" class="form-control" placeholder="Telefon (Ör: 5551112233)" maxlength="10" />
+        <br />
+        <label for="email">E-mail:</label>
+        <input type="email" id="email" class="form-control" placeholder="Mail" />
+        <span class="validity"></span>
+        <br />
+        <label for="cinsiyet">Cinsiyet:</label>
+        <select id="cinsiyet" class="form-control form-select">
+            <option value="0">Belirtilmemiş</option>
+            <option value="E">Erkek</option>
+            <option value="K">Kadın</option>
+        </select>
+        <input type="hidden" id="kayitTarihi" value="" />
+        <input type="hidden" id="durum" value="" />
+        <br />
+        <p id="validationMessage" style="color:red"></p>
+        <br />
+        <input type="button" id="btnSend" class="btn btn-warning" value="Güncelle" />
+    </div>
+</body>
+</html>
